@@ -1,0 +1,240 @@
+@model EticaretApp.Models.Cart
+@{
+    ViewData["Title"] = "Sepetim";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="display-4 text-center mb-3">🛒 Sepetim</h2>
+        <p class="text-center text-muted">Sepetinizdeki ürünleri kontrol edin</p>
+    </div>
+</div>
+
+@if (Model.CartItems != null && Model.CartItems.Any())
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ürün</th>
+                    <th>Fiyat</th>
+                    <th>Miktar</th>
+                    <th>Toplam</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.CartItems)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                @if (!string.IsNullOrEmpty(item.Product?.ImageUrl))
+                                {
+                                    <img src="@item.Product.ImageUrl" alt="@item.Product.Name" 
+                                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 10px; margin-right: 15px;">
+                                }
+                                <div>
+                                    <strong>@item.Product?.Name</strong>
+                                    @if (item.Product?.Category != null)
+                                    {
+                                        <br><small class="text-muted">@item.Product.Category.Name</small>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Size))
+                                    {
+                                        <br><span class="badge bg-secondary">Beden: @item.Size</span>
+                                    }
+                                </div>
+                            </div>
+                        </td>
+                        <td class="align-middle">
+                            <strong class="text-primary">@item.Product?.Price.ToString("C")</strong>
+                        </td>
+                        <td class="align-middle">
+                            <input type="number" class="form-control quantity-input" 
+                                   value="@item.Quantity" min="1" max="@item.Product?.Stock" 
+                                   data-cart-item-id="@item.Id" style="width: 100px;">
+                        </td>
+                        <td class="align-middle">
+                            <strong class="text-success" style="font-size: 1.2rem;">@item.SubTotal.ToString("C")</strong>
+                        </td>
+                        <td class="align-middle">
+                            <button class="btn btn-danger btn-sm" onclick="removeFromCart(@item.Id)">
+                                🗑️ Sil
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="3" class="text-end" style="font-size: 1.3rem;">Toplam:</th>
+                    <th style="font-size: 1.5rem; color: #667eea;">@Model.TotalAmount.ToString("C")</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary btn-lg">
+                ← Alışverişe Devam Et
+            </a>
+        </div>
+        <div class="col-md-6 text-end">
+            <a asp-controller="Orders" asp-action="Create" class="btn btn-success btn-lg">
+                ✅ Sipariş Ver
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center" style="padding: 3rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🛒</div>
+        <h4>Sepetiniz boş</h4>
+        <p class="mb-4">Henüz sepete ürün eklemediniz. Hemen alışverişe başlayın!</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+            🛍️ Alışverişe Başla
+        </a>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Miktar değiştiğinde güncelle
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function() {
+                var cartItemId = this.getAttribute('data-cart-item-id');
+                var quantity = parseInt(this.value);
+                updateQuantity(cartItemId, quantity);
+            });
+        });
+
+        function updateQuantity(cartItemId, quantity) {
+            fetch('/Cart/UpdateQuantity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cartItemId: cartItemId, quantity: quantity })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Sepet sayısını güncelle
+                    updateCartCount();
+                    // Başarı mesajı göster
+                    showNotification('Miktar başarıyla güncellendi!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Bir hata oluştu.');
+            });
+        }
+
+        function removeFromCart(cartItemId) {
+            if (confirm('Bu ürünü sepetten kaldırmak istediğinize emin misiniz?')) {
+                fetch('/Cart/RemoveFromCart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cartItemId: cartItemId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Sepet sayısını güncelle
+                        if (typeof updateCartCount === 'function') {
+                            updateCartCount();
+                        }
+                        showNotification('Ürün sepetten kaldırıldı!', 'success');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Bir hata oluştu.');
+                });
+            }
+        }
+
+
+
+        function showNotification(message, type) {
+            // Mevcut bildirimleri kaldır
+            const existing = document.querySelector('.custom-notification');
+            if (existing) {
+                existing.remove();
+            }
+
+            // Yeni bildirim oluştur
+            const notification = document.createElement('div');
+            notification.className = 'custom-notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 15px;
+                color: white;
+                font-weight: 600;
+                z-index: 9999;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                animation: slideInRight 0.5s ease;
+                max-width: 400px;
+            `;
+            
+            if (type === 'success') {
+                notification.style.background = 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)';
+                notification.innerHTML = '✅ ' + message;
+            } else {
+                notification.style.background = 'linear-gradient(135deg, #eb3349 0%, #f45c43 100%)';
+                notification.innerHTML = '❌ ' + message;
+            }
+            
+            document.body.appendChild(notification);
+            
+            // 3 saniye sonra kaldır
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.5s ease';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // CSS animasyonları ekle
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @@keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+}
+

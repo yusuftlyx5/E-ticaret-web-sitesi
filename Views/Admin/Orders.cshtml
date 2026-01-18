@@ -1,0 +1,58 @@
+@model List<EticaretApp.Models.Order>
+@{
+    ViewData["Title"] = "Sipariş Yönetimi";
+}
+
+<h2 class="mb-4">Sipariş Yönetimi</h2>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Sipariş No</th>
+                <th>Kullanıcı</th>
+                <th>Tarih</th>
+                <th>Toplam</th>
+                <th>Durum</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>#@order.Id</td>
+                    <td>
+                        @{
+                            var userNames = ViewBag.UserNames as Dictionary<string, string>;
+                            string displayName = order.UserId;
+                            if (userNames != null && userNames.ContainsKey(order.UserId))
+                            {
+                                displayName = userNames[order.UserId];
+                            }
+                        }
+                        @displayName
+                    </td>
+                    <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@order.TotalAmount.ToString("C")</td>
+                    <td>
+                        <form asp-action="UpdateOrderStatus" method="post" class="d-inline">
+                            <input type="hidden" name="orderId" value="@order.Id" />
+                            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="0" selected="@(order.Status == EticaretApp.Models.OrderStatus.Pending)">Beklemede</option>
+                                <option value="1" selected="@(order.Status == EticaretApp.Models.OrderStatus.Processing)">İşleniyor</option>
+                                <option value="2" selected="@(order.Status == EticaretApp.Models.OrderStatus.Shipped)">Kargoya Verildi</option>
+                                <option value="3" selected="@(order.Status == EticaretApp.Models.OrderStatus.Delivered)">Teslim Edildi</option>
+                                <option value="4" selected="@(order.Status == EticaretApp.Models.OrderStatus.Cancelled)">İptal Edildi</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-sm btn-primary">Detaylar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

@@ -1,0 +1,114 @@
+@model EticaretApp.Models.PaymentViewModel
+@{
+    ViewData["Title"] = "Ödeme";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4 text-center">Ödeme Bilgileri</h2>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Sipariş Özeti</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Teslimat Adresi:</strong><br /> @Model.Order.Address</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <h4 class="text-success">Toplam Tutar: @Model.Order.TotalAmount.ToString("C2")</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form asp-action="Payment" method="post" id="paymentForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- Hidden Fields for Order Data -->
+            <input type="hidden" asp-for="Order.Address" />
+            <input type="hidden" asp-for="Order.Phone" />
+            <input type="hidden" asp-for="Order.Note" />
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="CardHolderName" class="form-label"></label>
+                        <input asp-for="CardHolderName" class="form-control" placeholder="Ad Soyad" />
+                        <span asp-validation-for="CardHolderName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CardNumber" class="form-label"></label>
+                        <input asp-for="CardNumber" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" />
+                        <span asp-validation-for="CardNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ExpiryDate" class="form-label"></label>
+                            <input asp-for="ExpiryDate" class="form-control" placeholder="AA/YY" maxlength="5" />
+                            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CVV" class="form-label"></label>
+                            <input asp-for="CVV" class="form-control" placeholder="123" maxlength="4" />
+                            <span asp-validation-for="CVV" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                     <a href="javascript:history.back()" class="btn btn-secondary">Geri Dön</a>
+                    <button type="submit" class="btn btn-primary btn-lg" id="payBtn">
+                        <span id="payText">Ödeme Yap ve Siparişi Tamamla</span>
+                        <span id="paySpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            // Basit client-side validasyon kontrolü (HTML5 validasyonları geçerse)
+            if(this.checkValidity()){
+                var btn = document.getElementById('payBtn');
+                var text = document.getElementById('payText');
+                var spinner = document.getElementById('paySpinner');
+                
+                btn.disabled = true;
+                text.textContent = 'İşleniyor...';
+                spinner.classList.remove('d-none');
+            }
+        });
+
+        // Kart numarası formatlama (opsiyonel basit UX)
+        var cardInput = document.getElementById('CardNumber');
+        cardInput.addEventListener('input', function (e) {
+            var target = e.target;
+            var value = target.value.replace(/\D/g, '').substring(0, 16);
+            var sections = value.match(/.{1,4}/g);
+            if (sections) {
+                target.value = sections.join(' ');
+            } else {
+                target.value = value;
+            }
+        });
+        
+         // Tarih formatlama (opsiyonel basit UX)
+        var dateInput = document.getElementById('ExpiryDate');
+        dateInput.addEventListener('input', function (e) {
+            var target = e.target;
+            var value = target.value.replace(/\D/g, '').substring(0, 4);
+             if (value.length >= 3) {
+                 target.value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            } else {
+                 target.value = value;
+            }
+        });
+    </script>
+}

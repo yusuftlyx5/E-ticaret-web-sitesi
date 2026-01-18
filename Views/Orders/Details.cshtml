@@ -1,0 +1,79 @@
+@model EticaretApp.Models.Order
+@{
+    ViewData["Title"] = "Sipariş Detayı";
+}
+
+<h2 class="mb-4">Sipariş Detayı #@Model.Id</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Sipariş Bilgileri</h4>
+        <p><strong>Tarih:</strong> @Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</p>
+        <p><strong>Durum:</strong> 
+            @switch (Model.Status)
+            {
+                case EticaretApp.Models.OrderStatus.Pending:
+                    <span class="badge bg-warning">Beklemede</span>
+                    break;
+                case EticaretApp.Models.OrderStatus.Processing:
+                    <span class="badge bg-info">İşleniyor</span>
+                    break;
+                case EticaretApp.Models.OrderStatus.Shipped:
+                    <span class="badge bg-primary">Kargoya Verildi</span>
+                    break;
+                case EticaretApp.Models.OrderStatus.Delivered:
+                    <span class="badge bg-success">Teslim Edildi</span>
+                    break;
+                case EticaretApp.Models.OrderStatus.Cancelled:
+                    <span class="badge bg-danger">İptal Edildi</span>
+                    break;
+            }
+        </p>
+        <p><strong>Adres:</strong> @Model.Address</p>
+        <p><strong>Telefon:</strong> @Model.Phone</p>
+        @if (!string.IsNullOrEmpty(Model.Note))
+        {
+            <p><strong>Not:</strong> @Model.Note</p>
+        }
+    </div>
+</div>
+
+<h4 class="mt-4">Sipariş Öğeleri</h4>
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Ürün</th>
+                <th>Miktar</th>
+                <th>Birim Fiyat</th>
+                <th>Toplam</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                <tr>
+                    <td>
+                        @item.Product?.Name
+                        @if (!string.IsNullOrEmpty(item.Size))
+                        {
+                            <br><span class="badge bg-secondary">Beden: @item.Size</span>
+                        }
+                    </td>
+                    <td>@item.Quantity</td>
+                    <td>@item.UnitPrice.ToString("C")</td>
+                    <td>@item.SubTotal.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="3" class="text-end">Genel Toplam:</th>
+                <th>@Model.TotalAmount.ToString("C")</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+

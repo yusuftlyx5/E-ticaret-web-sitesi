@@ -1,0 +1,86 @@
+@{
+    ViewData["Title"] = "Admin Kullanıcısı Oluştur";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Admin Kullanıcısı Kurulumu</h3>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Success == true)
+                    {
+                        <div class="alert alert-success">
+                            <h5>Başarılı!</h5>
+                            <p>@Html.Raw(ViewBag.Message)</p>
+                            <hr>
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Giriş Sayfasına Git</a>
+                        </div>
+                    }
+                    else if (ViewBag.Success == false)
+                    {
+                        <div class="alert alert-danger">
+                            <h5>Hata!</h5>
+                            <p>@Html.Raw(ViewBag.Message)</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <p>Admin kullanıcısı oluşturuluyor...</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

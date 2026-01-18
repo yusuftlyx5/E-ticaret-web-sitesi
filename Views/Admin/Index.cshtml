@@ -1,0 +1,36 @@
+@{
+    ViewData["Title"] = "Admin Panel";
+}
+
+<h2 class="mb-4">Admin Panel</h2>
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Ürün Yönetimi</h5>
+                <p class="card-text">Ürünleri görüntüle, ekle, düzenle ve sil.</p>
+                <a asp-action="Products" class="btn btn-primary">Ürünler</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Kategori Yönetimi</h5>
+                <p class="card-text">Kategorileri görüntüle, ekle, düzenle ve sil.</p>
+                <a asp-action="Categories" class="btn btn-primary">Kategoriler</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Sipariş Yönetimi</h5>
+                <p class="card-text">Siparişleri görüntüle ve durumlarını güncelle.</p>
+                <a asp-action="Orders" class="btn btn-primary">Siparişler</a>
+            </div>
+        </div>
+    </div>
+</div>
+

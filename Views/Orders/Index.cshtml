@@ -1,0 +1,64 @@
+@model List<EticaretApp.Models.Order>
+@{
+    ViewData["Title"] = "Siparişlerim";
+}
+
+<h2 class="mb-4">Siparişlerim</h2>
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Sipariş No</th>
+                    <th>Tarih</th>
+                    <th>Toplam</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>#@order.Id</td>
+                        <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@order.TotalAmount.ToString("C")</td>
+                        <td>
+                            @switch (order.Status)
+                            {
+                                case EticaretApp.Models.OrderStatus.Pending:
+                                    <span class="badge bg-warning">Beklemede</span>
+                                    break;
+                                case EticaretApp.Models.OrderStatus.Processing:
+                                    <span class="badge bg-info">İşleniyor</span>
+                                    break;
+                                case EticaretApp.Models.OrderStatus.Shipped:
+                                    <span class="badge bg-primary">Kargoya Verildi</span>
+                                    break;
+                                case EticaretApp.Models.OrderStatus.Delivered:
+                                    <span class="badge bg-success">Teslim Edildi</span>
+                                    break;
+                                case EticaretApp.Models.OrderStatus.Cancelled:
+                                    <span class="badge bg-danger">İptal Edildi</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-primary">Detaylar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <p>Henüz siparişiniz bulunmamaktadır.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Alışverişe Başla</a>
+    </div>
+}
+

@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - E-Ticaret</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/EticaretApp.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <strong>🛍️ E-Ticaret</strong>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">🏠 Ana Sayfa</a>
+                        </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Index">⚙️ Admin Panel</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index">
+                                    🛒 Sepet
+                                    <span class="badge bg-light text-dark position-absolute top-0 start-100 translate-middle" id="cartCountBadge" style="font-size: 0.7rem;">0</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Orders" asp-action="Index">📦 Siparişlerim</a>
+                            </li>
+                            <li class="nav-item">
+                                <span class="nav-link">👤 @User.Identity.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-link nav-link p-0" style="border: none; background: none;">🚪 Çıkış Yap</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">🔐 Giriş Yap</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-light text-dark ms-2" style="border-radius: 20px; padding: 0.4rem 1rem !important;" asp-controller="Account" asp-action="Register">✨ Kayıt Ol</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container mt-4 mb-5">
+        <main role="main">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>✅ Başarılı!</strong> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>❌ Hata!</strong> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="bg-dark text-light text-center py-3 mt-5">
+        <div class="container">
+            &copy; 2025 - E-Ticaret. Tüm hakları saklıdır.
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script>
+            // Global sepet sayısı güncelleme fonksiyonu
+            function updateCartCount() {
+                fetch('/Cart/GetCartCount')
+                    .then(response => response.json())
+                    .then(data => {
+                        var badge = document.getElementById('cartCountBadge');
+                        if (badge) {
+                            badge.textContent = data.count;
+                            if (data.count > 0) {
+                                badge.classList.remove('d-none');
+                            } else {
+                                badge.textContent = '0';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating cart count:', error);
+                    });
+            }
+
+            // Sayfa yüklendiğinde sepet sayısını güncelle
+            document.addEventListener('DOMContentLoaded', function() {
+                updateCartCount();
+            });
+        </script>
+    }
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

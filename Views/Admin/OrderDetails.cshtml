@@ -1,0 +1,139 @@
+@model EticaretApp.Models.Order
+@{
+    ViewData["Title"] = "Sipariş Detayı";
+}
+
+<h2 class="mb-4">Sipariş Detayı #@Model.Id</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Sipariş Bilgileri</h4>
+        <table class="table table-bordered">
+            <tr>
+                <th>Sipariş No:</th>
+                <td>#@Model.Id</td>
+            </tr>
+            <tr>
+                <th>Kullanıcı ID:</th>
+                <td>@Model.UserId</td>
+            </tr>
+            <tr>
+                <th>Tarih:</th>
+                <td>@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+            </tr>
+            <tr>
+                <th>Durum:</th>
+                <td>
+                    @switch (Model.Status)
+                    {
+                        case EticaretApp.Models.OrderStatus.Pending:
+                            <span class="badge bg-warning">Beklemede</span>
+                            break;
+                        case EticaretApp.Models.OrderStatus.Processing:
+                            <span class="badge bg-info">İşleniyor</span>
+                            break;
+                        case EticaretApp.Models.OrderStatus.Shipped:
+                            <span class="badge bg-primary">Kargoya Verildi</span>
+                            break;
+                        case EticaretApp.Models.OrderStatus.Delivered:
+                            <span class="badge bg-success">Teslim Edildi</span>
+                            break;
+                        case EticaretApp.Models.OrderStatus.Cancelled:
+                            <span class="badge bg-danger">İptal Edildi</span>
+                            break;
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th>Adres:</th>
+                <td>@Model.Address</td>
+            </tr>
+            <tr>
+                <th>Telefon:</th>
+                <td>@Model.Phone</td>
+            </tr>
+            @if (!string.IsNullOrEmpty(Model.Note))
+            {
+                <tr>
+                    <th>Not:</th>
+                    <td>@Model.Note</td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+
+<h4 class="mt-4">Sipariş Öğeleri</h4>
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Ürün</th>
+                <th>Miktar</th>
+                <th>Birim Fiyat</th>
+                <th>Toplam</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                <tr>
+                    <td>@item.Product?.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.UnitPrice.ToString("C")</td>
+                    <td>@item.SubTotal.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="3" class="text-end">Genel Toplam:</th>
+                <th>@Model.TotalAmount.ToString("C")</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Orders" class="btn btn-secondary">Geri Dön</a>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

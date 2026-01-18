@@ -1,0 +1,171 @@
+﻿@model List<EticaretApp.Models.Product>
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    var categories = ViewBag.Categories as List<EticaretApp.Models.Category>;
+}
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1>Hoş Geldiniz!</h1>
+                <p>En kaliteli ürünleri en uygun fiyatlarla bulabileceğiniz adres. Hemen keşfedin ve alışverişe başlayın!</p>
+                <a href="#products" class="btn btn-light btn-lg mt-3" style="border-radius: 25px; padding: 0.8rem 2rem;">
+                    Ürünleri İncele
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4" id="products">
+    <div class="col-12">
+        <h1 class="display-4 text-center">Ürünlerimiz</h1>
+        <p class="text-center text-muted mb-4">Geniş ürün yelpazemizden size en uygun olanı seçin</p>
+    </div>
+</div>
+
+
+
+@if (categories != null && categories.Any())
+{
+    var selectedCategoryId = ViewBag.SelectedCategoryId as int?;
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <div class="btn-group" role="group">
+                <a asp-action="Index" class="btn @(selectedCategoryId == null ? "btn-primary" : "btn-outline-primary")">Tümü</a>
+                @foreach (var category in categories)
+                {
+                    <a asp-action="Index" asp-route-categoryId="@category.Id" class="btn @(selectedCategoryId == category.Id ? "btn-primary" : "btn-outline-primary")">@category.Name</a>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var product in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(product.ImageUrl))
+                    {
+                        <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="text-white">Resim Yok</span>
+                        </div>
+                    }
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text flex-grow-1">@(product.Description?.Length > 100 ? product.Description.Substring(0, 100) + "..." : product.Description)</p>
+                        <div class="mb-2">
+                            <span class="badge bg-primary">@product.Category?.Name</span>
+                            @if (product.Stock > 0)
+                            {
+                                <span class="badge bg-success ms-2">Stokta Var</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger ms-2">Stokta Yok</span>
+                            }
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(product.Size))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Beden:</label>
+                                <div class="btn-group w-100 size-selector" role="group" aria-label="Beden Seçimi" data-product-id="@product.Id">
+                                    @{
+                                        var sizes = product.Size.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                                    }
+                                    @foreach (var size in sizes)
+                                    {
+                                        <input type="radio" class="btn-check" name="size_@product.Id" id="size_@product.Id@size" value="@size" autocomplete="off">
+                                        <label class="btn btn-outline-secondary btn-sm" for="size_@product.Id@size">@size</label>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label for="quantity_@product.Id" class="form-label small fw-bold">Miktar:</label>
+                            <input type="number" class="form-control" id="quantity_@product.Id" value="1" min="1" max="@product.Stock" style="width: 80px;">
+                        </div>
+
+                        <p class="card-text mb-3">
+                            <strong class="text-primary" style="font-size: 1.5rem;">@product.Price.ToString("C")</strong>
+                        </p>
+                        <div class="mt-auto d-grid gap-2">
+                            <button onclick="addToCart(@product.Id)" class="btn btn-success">
+                                <i class="bi bi-cart-plus"></i> Sepete Ekle
+                            </button>
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-outline-primary">
+                                Detaylar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="alert alert-info">Henüz ürün bulunmamaktadır.</div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function addToCart(productId) {
+            // Seçili bedeni bul
+            var sizeInput = document.querySelector('input[name="size_' + productId + '"]:checked');
+            var size = sizeInput ? sizeInput.value : null;
+            var quantity = parseInt(document.getElementById('quantity_' + productId).value);
+            
+            // Eğer ürünün bedeni varsa ve seçilmediyse uyarı ver
+            var hasSizeOptions = document.querySelector('input[name="size_' + productId + '"]');
+            if (hasSizeOptions && !size) {
+                alert('Lütfen bir beden seçiniz.');
+                return;
+            }
+
+            // AJAX isteği gönder
+            fetch('/Cart/AddToCart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    quantity: quantity,
+                    size: size
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    // Sepet sayısını güncelle (eğer varsa)
+                    updateCartCount();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Bir hata oluştu.');
+            });
+        }
+
+
+    </script>
+}
+

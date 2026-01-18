@@ -1,0 +1,52 @@
+@model EticaretApp.Models.Order
+@{
+    ViewData["Title"] = "Sipariş Oluştur";
+}
+
+<h2 class="mb-4">Sipariş Bilgileri</h2>
+
+<form asp-action="Create" method="post" id="orderForm">
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="Address" class="form-label">Teslimat Adresi <span class="text-danger">*</span></label>
+        <textarea asp-for="Address" class="form-control" rows="3" required></textarea>
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Phone" class="form-label">Telefon <span class="text-danger">*</span></label>
+        <input asp-for="Phone" class="form-control" required />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Note" class="form-label">Sipariş Notu (Opsiyonel)</label>
+        <textarea asp-for="Note" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Note" class="text-danger"></span>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <a asp-controller="Cart" asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+        <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+            <span id="submitText">Siparişi Tamamla</span>
+            <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            var submitBtn = document.getElementById('submitBtn');
+            var submitText = document.getElementById('submitText');
+            var submitSpinner = document.getElementById('submitSpinner');
+            
+            submitBtn.disabled = true;
+            submitText.textContent = 'İşleniyor...';
+            submitSpinner.classList.remove('d-none');
+        });
+    </script>
+}
+

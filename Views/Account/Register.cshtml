@@ -1,0 +1,60 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="text-center mb-4">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">✨</div>
+            <h2 class="mb-2">Yeni Hesap Oluştur</h2>
+            <p class="text-muted">Hemen kayıt olun ve alışverişe başlayın!</p>
+        </div>
+        <form asp-action="Register" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            
+            <div class="mb-4">
+                <label asp-for="Email" class="form-label">
+                    📧 E-posta Adresi
+                </label>
+                <input asp-for="Email" class="form-control" placeholder="ornek@email.com" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Password" class="form-label">
+                    🔑 Şifre
+                </label>
+                <input asp-for="Password" class="form-control" placeholder="Güçlü bir şifre oluşturun" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="ConfirmPassword" class="form-label">
+                    🔒 Şifre Tekrar
+                </label>
+                <input asp-for="ConfirmPassword" class="form-control" placeholder="Şifrenizi tekrar girin" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <div class="d-grid mb-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    🎉 Kayıt Ol
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-4">
+            <p class="text-muted">Zaten hesabınız var mı? 
+                <a asp-action="Login" style="color: #667eea; font-weight: 600; text-decoration: none;">
+                    Giriş Yap →
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

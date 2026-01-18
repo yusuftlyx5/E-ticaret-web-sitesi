@@ -1,0 +1,42 @@
+@model List<EticaretApp.Models.Category>
+@{
+    ViewData["Title"] = "Kategori Yönetimi";
+}
+
+<h2 class="mb-4">Kategori Yönetimi</h2>
+
+<div class="mb-3">
+    <a asp-action="CreateCategory" class="btn btn-success">Yeni Kategori Ekle</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ad</th>
+                <th>Açıklama</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model)
+            {
+                <tr>
+                    <td>@category.Id</td>
+                    <td>@category.Name</td>
+                    <td>@category.Description</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a asp-action="EditCategory" asp-route-id="@category.Id" class="btn btn-sm btn-primary">Düzenle</a>
+                            <form asp-action="DeleteCategory" asp-route-id="@category.Id" method="post" onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
