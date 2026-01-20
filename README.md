@@ -26,4 +26,4 @@ Bu projenin geliştirilmesinde aşağıdaki teknolojiler kullanılmıştır:
 
 ## Tanıtım Videosu YouTube Linki
 https://youtu.be/M6YHo29XfRY
-[Örnek: https://www.youtube.com/watch?v=VIDEO_ID]
+
