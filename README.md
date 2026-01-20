@@ -25,5 +25,5 @@ Bu projenin geliştirilmesinde aşağıdaki teknolojiler kullanılmıştır:
 *   **HTML / CSS / Bootstrap** (Ön Yüz Tasarımı)
 
 ## Tanıtım Videosu YouTube Linki
-(Buraya projenizin tanıtım videosunun linkini yapıştırınız)
+https://youtu.be/M6YHo29XfRY
 [Örnek: https://www.youtube.com/watch?v=VIDEO_ID]
